@@ -1,0 +1,3 @@
+load 'knightPathFinder.rb'
+knight = KnightPathFinder.new([0,0])
+knight.find_path([2, 1])
