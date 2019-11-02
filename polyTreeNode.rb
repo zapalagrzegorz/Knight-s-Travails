@@ -18,7 +18,8 @@ class PolyTreeNode
     end
 
     # TODO safe navigation &.
-    # dzieci dotychczasowego rodzica
+    # sytuacja zmiany rodzica dla danego wezła powoduje konieczność aktualizacji
+    # informacji o powiązaniu dotychczasowego (ex) rodzica z bieżącym węzłem
     unless parent.nil?
       parent.children.delete(self)
     end
@@ -61,15 +62,11 @@ class PolyTreeNode
   end
 
   def bfs(target_value)
-    path_list = []
     queue = [self]
     until queue.empty?
       node = queue.shift
-      path_list.push(node)
 
-      if node.value == target_value
-        return path_list
-      end
+      return node if node.value == target_value
 
       queue.push(*node.children)
       #  nodes.concat(node.children)

@@ -4,10 +4,7 @@ require_relative "polyTreeNode"
 class KnightPathFinder
   # minesweeper code
   attr_reader :root_node
-  # [
-  # [0,0], [0,1], [0,2]
-  # [1,0], [1,1], [1,2]
-  # [2,0], [2,1]
+
   DELTAS = [
     [1, -2],  # top-right
     [-1, -2], # top-left
@@ -27,38 +24,50 @@ class KnightPathFinder
   def find_path(target)
     build_move_tree(@root_node)
 
-    return_list = @root_node.bfs(target)
-    debugger
+    # debugger
+    target_node = @root_node.bfs(target)
 
-    next_node_in_path = return_list[-1]
-    path_list = [next_node_in_path.value]
+    # debugger
+    trace_path_back(target_node)
 
-    until next_node_in_path.value == @root_node.value
-      index_previous_node = return_list.find_index { |node| node.value == next_node_in_path.parent.value }
-      next_node_in_path = return_list[index_previous_node]
-      path_list.unshift(next_node_in_path.value)
-    end
-
-    path_list
+    # path_list
   end
 
+  # use a queue to process nodes in FIFO order. Start with a root node representing
+  # the start_pos and explore moves from one position at a time.
+
+  # Next build nodes representing positions one move away, add these to the queue.
+  # Then take the next node from the queue... until the queue is empty.
   def build_move_tree(startingNode)
     # debugger
-    starting_node_moves = new_move_positions(startingNode.value)
+    # queque_positions
+    # starting_node_moves behaves as Queque
 
-    unless starting_node_moves.empty?
-      polyNodes = starting_node_moves.map do |pos|
-        PolyTreeNode.new(pos)
+    queue = [startingNode]
+
+    until queue.empty?
+      node = queue.shift
+      node_moves = new_move_positions(node.value)
+
+      until node_moves.empty?
+        pos = node_moves.shift
+
+        node_child = PolyTreeNode.new(pos)
+        node.add_child(node_child)
+
+        queue.push(node_child)
       end
 
-      startingNode.add_children(polyNodes)
-
-      polyNodes.each { |node| build_move_tree(node) }
+      # debugger
     end
+
+    # queque_children_nodes = []
+
   end
 
   #   minesweeper code
   def valid_moves(pos)
+    # debugger
     # te nawiasy chyba zbędne, to mogą przypominać, o destrukturyzacji
     possible_coords = DELTAS.map do |(dx, dy)|
       [pos[0] + dx, pos[1] + dy]
@@ -69,13 +78,29 @@ class KnightPathFinder
         coord.between?(0, 8)
       end
     end
+
+    possible_valid_coords
   end
 
   #   it should call the ::valid_moves class method, but filter out any positions that are already in @considered_positions.
   def new_move_positions(pos)
+    # debugger
     new_move_positions = valid_moves(pos).reject { |move| @considered_positions.include?(move) }
     @considered_positions.push(*new_move_positions)
 
     new_move_positions
+  end
+
+  def trace_path_back(node)
+    # debugger
+    path_list = [node.value]
+
+    until node.parent.nil?
+      path_list.push(node.parent.value)
+      node = node.parent
+    end
+
+    # todo robić push zamiast unshift, a na końcu reverse
+    path_list.reverse
   end
 end
